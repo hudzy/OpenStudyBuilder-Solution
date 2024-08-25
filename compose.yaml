@@ -1,5 +1,15 @@
-services:
+version: '3'
 
+networks:
+  openstudybuilder-network:
+    driver: bridge
+
+volumes:
+  # Volume for storing the database on a local development environment
+  openstudybuilder-database:
+    name: openstudybuilder-database
+
+services:
   # Database service for local development
   database:
     image: hudzy/openstudybuilder:database
@@ -16,9 +26,10 @@ services:
       NEO4J_server_memory_heap_max__size: "2G"
       NEO4J_server_memory_pagecache_size: "1G"
       NEO4J_server_default__listen__address: "0.0.0.0" #localhost
-      # NEO4J_server_default__advertised__address: "localhost"
       # NEO4J_server_bolt_advertised__address: "localhost:5002" #:7687
       # NEO4J_server_http_advertised__address: "localhost:5001" #:7474
+    networks:
+      - openstudybuilder-network
     ports:
       - "7687:7687" # bolt
       - "7474:7474" # http
@@ -26,8 +37,6 @@ services:
       - type: volume
         source: openstudybuilder-database
         target: /data
-      # For database dumps, you can mount a folder into the container ex.:
-      #- ./neo4j-dumps:/data/dumps
       #- ./neo4j-data:/data
 
   # Neodash service used with defined parameters
@@ -36,23 +45,24 @@ services:
     depends_on:
       database:
         condition: service_healthy
+    networks:
+      - openstudybuilder-network
     ports:
       - "5007:5007"
     environment:
-      - NGINX_PORT=5007
-      - ssoEnabled=false
-      - ssoDiscoveryUrl=https://localhost.com
-      - standalone=true
-      - standaloneProtocol=neo4j
-      - standaloneHost=localhost
-      # - standalonePort=5002
-      - standalonePort=7687
-      - standaloneDatabase=mdrdb
-      - standaloneAllowLoad=true
-      - standaloneDashboardName=Activity Library Dashboard
-      - standaloneDashboardDatabase=mdrdb
-      - standaloneUsername=neo4j
-      - standalonePassword=changeme1234
+      NGINX_PORT: 5007
+      ssoEnabled: false
+      ssoDiscoveryUrl: https://localhost.com
+      standalone: true
+      standaloneProtocol: neo4j
+      standaloneHost: localhost
+      standalonePort: 7687 # 5002
+      standaloneDatabase: mdrdb
+      standaloneAllowLoad: true
+      standaloneDashboardName: Activity Library Dashboard
+      standaloneDashboardDatabase: mdrdb
+      standaloneUsername: neo4j
+      standalonePassword: changeme1234
 
   # Documentation portal image for production (see docs service for local development)
   documentation:
@@ -60,6 +70,8 @@ services:
     build:
       context: ./documentation-portal
       dockerfile: Dockerfile
+    networks:
+      - openstudybuilder-network
     ports:
       - "5006:5006"
 
@@ -69,14 +81,11 @@ services:
     build:
       context: ./clinical-mdr-api
       dockerfile: Dockerfile
-      # args:
-      #   UVICORN_PORT: 5003
-      #   UVICORN_ROOT_PATH: "/api"
-      #   PYTHON_IMAGE: python:3.11.3-slim
-      #   TARGET: dev
     depends_on:
       database:
         condition: service_healthy
+    networks:
+      - openstudybuilder-network
     ports:
       - "5003:5003"
     environment:
@@ -90,29 +99,22 @@ services:
       # OAUTH_SWAGGER_APP_ID: "${OAUTH_SWAGGER_APP_ID:-}"
       # MS_GRAPH_INTEGRATION_ENABLED: "${MS_GRAPH_INTEGRATION_ENABLED:-}"
       # MS_GRAPH_GROUPS_QUERY: "${MS_GRAPH_GROUPS_QUERY:-}"
-      # deprecated #
-      # OAUTH_APP_ID: "${OAUTH_APP_ID:-}"
-      # OAUTH_APP_SECRET: "${OAUTH_APP_SECRET:-}"
-      # OAUTH_CLIENT_ID: "${OAUTH_CLIENT_ID:-}"
-      # OIDC_METADATA_DOCUMENT: "${OIDC_METADATA_DOCUMENT:-}"
 
   # Frontend image for production (see UI service for local development)
   frontend:
     image: hudzy/openstudybuilder:frontend
     build:
-      # args:
-      #   NGINX_IMAGE: nginx:alpine
-      #   NODE_IMAGE: node:lts-alpine
       context: ./studybuilder
       dockerfile: Dockerfile
     depends_on:
-      # Nginx reverse-proxy configuration requires downstream services to be ready at startup
       api:
         condition: service_healthy
       documentation:
         condition: service_healthy
       neodash:
         condition: service_healthy
+    networks:
+      - openstudybuilder-network
     ports:
       - "5005:5005"
     environment:
@@ -120,13 +122,7 @@ services:
       DOC_BASE_URL: "${DOC_PATH:-}"
       NEODASH_BASE_URL: "${NEODASH_PATH:-}"
       OAUTH_ENABLED: "${OAUTH_ENABLED:-false}"
-      OAUTH_METADATA_URL: "${OAUTH_METADATA_URL:-}"
-      OAUTH_API_APP_ID: "${OAUTH_API_APP_ID:-}"
-      OAUTH_UI_APP_ID: "${OAUTH_UI_APP_ID:-}"
+      # OAUTH_METADATA_URL: "${OAUTH_METADATA_URL:-}"
+      # OAUTH_API_APP_ID: "${OAUTH_API_APP_ID:-}"
+      # OAUTH_UI_APP_ID: "${OAUTH_UI_APP_ID:-}"
       APPINSIGHTS_DISABLE: "true"
-
-
-volumes:
-  # Volume for storing the database on a local development environment
-  openstudybuilder-database:
-    name: openstudybuilder-database
