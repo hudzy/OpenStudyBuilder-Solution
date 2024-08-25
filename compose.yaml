@@ -12,6 +12,7 @@ volumes:
 services:
   # Database service for local development
   database:
+    container_name: openstudybuilder-database
     image: hudzy/openstudybuilder:database
     build:
       args:
@@ -41,6 +42,7 @@ services:
 
   # Neodash service used with defined parameters
   neodash:
+    container_name: openstudybuilder-neodash
     image: neo4jlabs/neodash:2.4.8
     depends_on:
       database:
@@ -66,6 +68,7 @@ services:
 
   # Documentation portal image for production (see docs service for local development)
   documentation:
+    container_name: openstudybuilder-documentation
     image: hudzy/openstudybuilder:documentation
     build:
       context: ./documentation-portal
@@ -77,6 +80,7 @@ services:
 
   # API image & service, distinct build stages for production and development
   api:
+    container_name: openstudybuilder-api
     image: hudzy/openstudybuilder:api
     build:
       context: ./clinical-mdr-api
@@ -102,6 +106,7 @@ services:
 
   # Frontend image for production (see UI service for local development)
   frontend:
+    container_name: openstudybuilder-frontend
     image: hudzy/openstudybuilder:frontend
     build:
       context: ./studybuilder
