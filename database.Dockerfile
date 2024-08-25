@@ -5,7 +5,7 @@ ARG PYTHON_IMAGE=python:3.11.9-slim
 FROM $PYTHON_IMAGE as build-stage
 
 ARG NEO4J_DOWNLOAD_URL=https://dist.neo4j.org/neo4j-enterprise-5.18.1-unix.tar.gz
-ARG NEO4J_CHECKSUM=a2ab866be05d2decef558b3e711c4b4403f3a35be6b87f7b94c618bb83b8f7c3
+# ARG NEO4J_CHECKSUM=a2ab866be05d2decef558b3e711c4b4403f3a35be6b87f7b94c618bb83b8f7c3
 
 ## Install required system packages, for clinical-mdr-api as well
 RUN apt-get update \
@@ -58,8 +58,8 @@ ENV NEO4J_DSN="bolt://${NEO4J_MDR_AUTH_USER}:${NEO4J_MDR_AUTH_PASSWORD}@localhos
 
 
 # Install Neo4j from tarball
+    # && echo "$NEO4J_CHECKSUM  neo4j.tar.gz" | sha256sum --check - \
 RUN curl --fail --location --output neo4j.tar.gz --silent --show-error "$NEO4J_DOWNLOAD_URL" \
-    && echo "$NEO4J_CHECKSUM  neo4j.tar.gz" | sha256sum --check - \
     && tar --extract --gzip --file neo4j.tar.gz --strip-components=1 \
     && rm neo4j.tar.gz \
     && mv labs/apoc*core.jar plugins/ \

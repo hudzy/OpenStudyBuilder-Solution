@@ -1,4 +1,4 @@
-ARG PYTHON_IMAGE=python:3.11.3-slim
+ARG PYTHON_IMAGE=python:3.11.9-slim
 ARG TARGET=dev
 
 ## In shared stage we create the environment and settings that are shared between prod and dev
@@ -83,8 +83,8 @@ FROM ${TARGET}-stage as final
 
 ## Preferred to configure Uvicorn using env vars with UVICORN_ prefix, default values from build arguments
 ARG UVICORN_HOST="0.0.0.0"
-ARG UVICORN_PORT="8000"
-ARG UVICORN_ROOT_PATH="/"
+ARG UVICORN_PORT="5003"
+ARG UVICORN_ROOT_PATH="/api"
 ENV UVICORN_PORT="$UVICORN_PORT" \
     UVICORN_HOST="$UVICORN_HOST" \
     UVICORN_ROOT_PATH="$UVICORN_ROOT_PATH"
