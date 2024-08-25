@@ -35,10 +35,10 @@ services:
       - "7687:7687" # bolt
       - "7474:7474" # http
     volumes:
-      - type: volume
-        source: openstudybuilder-database
-        target: /data
-      #- ./neo4j-data:/data
+      # - type: volume
+      #   source: openstudybuilder-database
+      #   target: /data
+      - ./neo4j-data:/data
 
   # Neodash service used with defined parameters
   neodash:
