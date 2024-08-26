@@ -24,4 +24,5 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push
-        run: build-push-image.sh
+        working-directory: ./
+        run: ./build-push-image.sh
