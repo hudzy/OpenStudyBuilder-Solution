@@ -1,15 +1,16 @@
 name: OpenStudyBuilder-Solution-CI
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - ./docker-compose-build.yaml
-      - ./database.Dockerfile
-      - ./documentation-portal/Dockerfile
-      - ./clinical-mdr-api/Dockerfile
-      - ./studybuilder/Dockerfile
+  workflow_dispatch:
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - ./docker-compose-build.yaml
+  #     - ./database.Dockerfile
+  #     - ./documentation-portal/Dockerfile
+  #     - ./clinical-mdr-api/Dockerfile
+  #     - ./studybuilder/Dockerfile
 
 jobs:
   docker-build-push:
