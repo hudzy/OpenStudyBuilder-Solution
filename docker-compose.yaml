@@ -112,12 +112,12 @@ services:
           "--fail",
           "--silent",
           "--show-error",
-          "http://127.0.0.1:5003",
+          "http://127.0.0.1:5003/system/healthcheck",
         ]
       interval: 10s
       timeout: 2s
       retries: 2
-      start_period: 10s
+      start_period: 40s
 
   # Frontend image for production (see UI service for local development)
   frontend:
