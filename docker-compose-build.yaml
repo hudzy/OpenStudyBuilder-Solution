@@ -1,4 +1,4 @@
-version: "3"
+version: '3'
 
 networks:
   openstudybuilder-network:
@@ -14,12 +14,21 @@ services:
   database:
     container_name: openstudybuilder-database
     image: hudzy/openstudybuilder:database
+    build:
+      args:
+        NEO4J_server_memory_heap_initial__size: "3G"
+        NEO4J_server_memory_heap_max__size: "3G"
+        NEO4J_server_memory_pagecache_size: "2G"
+      context: ./
+      dockerfile: database.Dockerfile
     environment:
       NEO4J_ACCEPT_LICENSE_AGREEMENT: "yes"
       NEO4J_server_memory_heap_initial__size: "2G"
       NEO4J_server_memory_heap_max__size: "2G"
       NEO4J_server_memory_pagecache_size: "1G"
       NEO4J_server_default__listen__address: "0.0.0.0" #localhost
+      # NEO4J_server_bolt_advertised__address: "localhost:5002" #:7687
+      # NEO4J_server_http_advertised__address: "localhost:5001" #:7474
     networks:
       - openstudybuilder-network
     ports:
@@ -61,6 +70,9 @@ services:
   documentation:
     container_name: openstudybuilder-documentation
     image: hudzy/openstudybuilder:documentation
+    build:
+      context: ./documentation-portal
+      dockerfile: Dockerfile
     networks:
       - openstudybuilder-network
     ports:
@@ -70,6 +82,9 @@ services:
   api:
     container_name: openstudybuilder-api
     image: hudzy/openstudybuilder:api
+    build:
+      context: ./clinical-mdr-api
+      dockerfile: Dockerfile
     depends_on:
       database:
         condition: service_healthy
@@ -93,6 +108,9 @@ services:
   frontend:
     container_name: openstudybuilder-frontend
     image: hudzy/openstudybuilder:frontend
+    build:
+      context: ./studybuilder
+      dockerfile: Dockerfile
     depends_on:
       api:
         condition: service_healthy
