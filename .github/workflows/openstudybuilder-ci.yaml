@@ -1,4 +1,4 @@
-name: ql-ci
+name: OpenStudyBuilder-Solution-CI
 
 on:
   push:
