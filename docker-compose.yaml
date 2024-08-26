@@ -26,10 +26,10 @@ services:
       - "7687:7687" # bolt
       - "7474:7474" # http
     volumes:
-      # - type: volume
-      #   source: openstudybuilder-database
-      #   target: /data
-      - ./neo4j-data:/data
+      - type: volume
+        source: openstudybuilder-database
+        target: /data
+      # - ./neo4j-data:/data
 
   # Neodash service used with defined parameters
   neodash:
@@ -56,6 +56,12 @@ services:
       standaloneDashboardDatabase: mdrdb
       standaloneUsername: neo4j
       standalonePassword: changeme1234
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1:5007"]
+      interval: 10s
+      timeout: 2s
+      retries: 2
+      start_period: 10s
 
   # Documentation portal image for production (see docs service for local development)
   documentation:
@@ -65,6 +71,12 @@ services:
       - openstudybuilder-network
     ports:
       - "5006:5006"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1:5006"]
+      interval: 10s
+      timeout: 2s
+      retries: 2
+      start_period: 10s
 
   # API image & service, distinct build stages for production and development
   api:
@@ -88,6 +100,20 @@ services:
       # OAUTH_SWAGGER_APP_ID: "${OAUTH_SWAGGER_APP_ID:-}"
       # MS_GRAPH_INTEGRATION_ENABLED: "${MS_GRAPH_INTEGRATION_ENABLED:-}"
       # MS_GRAPH_GROUPS_QUERY: "${MS_GRAPH_GROUPS_QUERY:-}"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "--fail",
+          "--silent",
+          "--show-error",
+          "http://127.0.0.1:5007",
+        ]
+      interval: 10s
+      timeout: 2s
+      retries: 2
+      start_period: 10s
 
   # Frontend image for production (see UI service for local development)
   frontend:
@@ -113,3 +139,9 @@ services:
       # OAUTH_API_APP_ID: "${OAUTH_API_APP_ID:-}"
       # OAUTH_UI_APP_ID: "${OAUTH_UI_APP_ID:-}"
       APPINSIGHTS_DISABLE: "true"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1:5005"]
+      interval: 10s
+      timeout: 2s
+      retries: 2
+      start_period: 10s

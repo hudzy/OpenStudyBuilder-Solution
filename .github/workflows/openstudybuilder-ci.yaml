@@ -4,8 +4,12 @@ on:
   push:
     branches:
       - main
-    # paths:
-    #   - docker/**
+    paths:
+      - ./docker-compose-build.yaml
+      - ./database.Dockerfile
+      - ./documentation-portal/Dockerfile
+      - ./clinical-mdr-api/Dockerfile
+      - ./studybuilder/Dockerfile
 
 jobs:
   docker-build-push:
