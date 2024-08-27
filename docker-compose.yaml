@@ -116,8 +116,8 @@ services:
         ]
       interval: 10s
       timeout: 2s
-      retries: 2
-      start_period: 40s
+      retries: 6
+      start_period: 30s
 
   # Frontend image for production (see UI service for local development)
   frontend:
