@@ -24,16 +24,19 @@ services:
       NEO4J_server_memory_heap_initial__size: "1G"
       NEO4J_server_memory_heap_max__size: "1G"
       NEO4J_server_memory_pagecache_size: "500M"
+      # configure APOC plugin
+      NEO4J_apoc_export_file_enabled: "true"
+      NEO4J_apoc_import_file_enabled: "true"
+      NEO4J_apoc_import_file_use__neo4j__config: "true"
+      NEO4J_dbms_security_procedures_unrestricted: "apoc.*"
+      NEO4J_PLUGINS: '["apoc"]'
     networks:
       - openstudybuilder-network
     ports:
       - "7687:7687" # bolt
       - "7474:7474" # http
     volumes:
-      - type: volume
-        source: openstudybuilder-database
-        target: /data
-      # - ./neo4j-data:/data
+      - openstudybuilder-database:/data
 
   # Neodash service used with defined parameters
   neodash:
@@ -117,7 +120,7 @@ services:
       interval: 10s
       timeout: 2s
       retries: 6
-      start_period: 30s
+      start_period: 60s
 
   # Frontend image for production (see UI service for local development)
   frontend:
@@ -147,5 +150,5 @@ services:
       test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1:5005"]
       interval: 10s
       timeout: 2s
-      retries: 2
-      start_period: 10s
+      retries: 6
+      start_period: 30s

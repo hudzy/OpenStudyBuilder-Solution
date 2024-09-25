@@ -21,7 +21,7 @@ RUN apt-get update \
         libpangoft2-1.0-0 \
         jq \
         gcc \
-        net-tools \ 
+        net-tools \
     && pip install --upgrade pip pipenv wheel \
     && apt-get clean && rm -rf /var/lib/apt/lists && rm -rf ~/.cache
 
@@ -156,16 +156,21 @@ RUN [ "x$UID" = "x1000" ] || { \
     ;}
 
 # Install APOC plugin
+ARG NEO4J_APOC_VERSION=5.18.0
 RUN wget --quiet --timeout 60 --tries 2 --output-document /var/lib/neo4j/plugins/apoc.jar \
-    https://github.com/neo4j/apoc/releases/download/5.18.0/apoc-5.18.0-core.jar
+    https://github.com/neo4j/apoc/releases/download/$NEO4J_APOC_VERSION/apoc-$NEO4J_APOC_VERSION-core.jar \
+    && chown -R $USER:$GROUP /var/lib/neo4j/plugins
 
 # Copy database files from build stage
 COPY --from=build-stage --chown=$USER:$GROUP /neo4j/data /data
 
-# Set up default environment variables
+# Set up APOC plugin related environment variables
 ENV NEO4J_apoc_trigger_enabled="true" \
     NEO4J_apoc_import_file_enabled="true" \
-    NEO4J_apoc_export_file_enabled="true"
+    NEO4J_apoc_export_file_enabled="true" \
+    NEO4J_apoc_import_file_use__neo4j__config="true" \
+    NEO4J_dbms_security_procedures_unrestricted="apoc.*" \
+    NEO4J_PLUGINS="[\"apoc\"]"
 
 # Volume attachment point: if an empty volume is mounted, it gets populated with the pre-built database from the image
 VOLUME /data
